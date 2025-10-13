@@ -233,6 +233,38 @@ router.get("/", async (req, res) => {
     }
 });
 
+//@route GET /api/products/best-seller
+//@desc Retrieve the product with the highest rating
+//@access Public
+//This route works when its on top of the route "get a single product by id", because if not it will treat the "best-seller" as id
+router.get("/best-seller", async (req, res) => {
+    try{
+        const bestSeller = await Product.findOne().sort({rating: -1});
+        if(bestSeller){
+            res.json(bestSeller); 
+        } else {
+            res.status(404).json({ message: "No products found" });
+        }
+    } catch (error){
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+//@route GET /api/products/new-arrivals
+//@desc Retrieve the products based on creation date
+//@access Public
+router.get("/new-arrivals", async (req, res) => {
+    try {
+        //Fetch latest 8 products
+        const newArrivals = await Product.find().sort({ createdAt: -1 }).limit(8);
+        res.json(newArrivals)
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+})
+
 // @route GET /api/products/:id
 // @desc Get a single product by id
 // @access Public
@@ -249,5 +281,35 @@ router.get("/:id", async (req, res) => {
         res.status(500).json({ message: "Server error" });  
     }
 })
+
+//@route GET /api/products/similar/:id
+//@desc Get similar products based on current gender and category
+//@access Public
+router.get("/similar/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const product = await Product.findById(id);
+
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        } else {
+
+        }
+
+        const similarProducts = await Product.find({
+            _id: { $ne: id }, // excludes the current product
+            gender: product.gender,
+            category: product.category,
+        }).limit(4);
+
+        res.json(similarProducts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 
 module.exports = router;
