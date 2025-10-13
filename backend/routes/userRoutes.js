@@ -75,7 +75,7 @@ router.post("/login", async (req, res) => {
         jwt.sign(
             payload,
             process.env.JWT_SECRET, 
-            {expiresIn: "1h"}, 
+            {expiresIn: "12h"}, 
             (err, token) => {
             if (err) throw err;
 
@@ -98,7 +98,7 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// @route GET /api/users/profil
+// @route GET /api/users/profile
 // @desc get user profile (protected route)
 // @access Private
 router.get("/profile", protect, async (req, res) => {

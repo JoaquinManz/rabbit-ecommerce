@@ -12,6 +12,9 @@ dist-ssr/
 .env.local
 .env.*
 
+# files
+backend/data/products.js
+
 # Logs
 logs
 *.log
