@@ -90,7 +90,7 @@ router.put("/", async (req, res) => {
     const { productId, quantity, size, color, guestId, userId } = req.body;
 
     try {
-        let cart = await getCart(user, guestId)
+        let cart = await getCart(userId, guestId)
 
         if(!cart) return res.status(404).json({ message: "Cart not found" })
 
@@ -107,7 +107,7 @@ router.put("/", async (req, res) => {
             } else {
                 cart.product.splice(productIndex, 1); // Removes the product if the quantity is 0
             }
-            cart.totalPrice = cart.products.reduce((acc, item) => acc + item.price * item.quantity, 0);
+            cart.totalPrice = cart.product.reduce((acc, item) => acc + item.price * item.quantity, 0);
             await cart.save()
             return res.status(200).json(cart);
         } else {
@@ -117,7 +117,60 @@ router.put("/", async (req, res) => {
         console.log(error);
         res.status(500).json({ message: "Server error" })
     }
-})
+});
 
+// @route DELETE /api/cart
+// @desc Delete product from cart
+// @access Public
+
+router.delete("/", async (req, res) => {
+    const { productId, size, color, guestId, userId } = req.body;
+    try {
+        let cart = await getCart(userId, guestId)
+        if(!cart) return res.status(404).json({ message: "Cart not found :(" })
+
+        const productIndex = cart.product.findIndex((p) =>
+            p.productId.toString() === productId &&
+            p.size === size &&
+            p.color === color
+        );
+
+        if(productIndex > -1) {
+            cart.product.splice(productIndex, 1);
+
+            cart.totalPrice = cart.product.reduce((acc, item) => acc + item.price * item.quantity, 0);
+            await cart.save()
+            return res.status(200).json(cart);
+        } else {
+            return res.status(404).json({ message: "Product not found in your cart :(" });
+        } 
+        
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// @route GET /api/cart
+// @desc Get logged-in user's or guest's cart
+// @access Public
+router.get("/", async (req, res) => {
+    const { userId, guestId } = req.query;
+
+    try {
+        const cart = await getCart(userId, guestId);
+        
+        if(cart) {
+            res.json(cart);
+        } else {
+            res.status(404).json({ message: "Cart not found :(" });
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 
 module.exports = router;
