@@ -1,8 +1,8 @@
-import { createSlice, createAsyncThunk, isRejectedWithValue } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Retrieve user info and token from local storage if available
-const userFromStorage = localStorage.get("userInfo")
+const userFromStorage = localStorage.getItem("userInfo")
     ? JSON.parse(localStorage.getItem("userInfo"))
     : null;
 
@@ -21,7 +21,7 @@ const initialState = {
 };
 
 // Async thunk for user login
-export const login = createAsyncThunk("auth/login", async (userData, { rejectWithValue }) => {
+export const loginUser = createAsyncThunk("auth/login", async (userData, { rejectWithValue }) => {
     try {
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
             userData
@@ -31,7 +31,7 @@ export const login = createAsyncThunk("auth/login", async (userData, { rejectWit
 
         return response.data.user; // return the user token to use later in the app
     } catch (error) {
-        return isRejectedWithValue(error.response.data);
+        return rejectWithValue(error.response.data);
     }
 })
 // Async thunk for user registration
@@ -79,5 +79,20 @@ const authSlice = createSlice({
             state.loading = false;
             state.error = action.payload.message;
         })
+        .addCase(registerUser.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(registerUser.fulfilled, (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        })
+        .addCase(registerUser.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.payload.message;
+        });
     }
-})
+});
+
+export const { logout, generateNewGuestId } = authSlice.actions;
+export default authSlice.reducer;
