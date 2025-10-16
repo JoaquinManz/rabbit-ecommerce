@@ -64,7 +64,7 @@ export const updateProduct = createAsyncThunk("products/updateProduct",
 // async thunk to fetch similar products
 
 export const fetchSimilarProducts = createAsyncThunk("/products/fetchSimilarProducts", 
-    async (id) => {
+    async ({ id }) => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/similar/${id}`
         );
         return response.data;
@@ -124,7 +124,7 @@ const productsSlice = createSlice({
             state.loading = false;
             state.products = Array.isArray(action.payload) ? action.payload : [];
         })
-        .addAsyncThunk(fetchProductsByFilters.rejected, (state, action) => {
+        .addCase(fetchProductsByFilters.rejected, (state, action) => {
             state.loading = false
             state.error - action.error.message;
         })
@@ -137,7 +137,7 @@ const productsSlice = createSlice({
             state.loading = false;
             state.selectedProduct = action.payload;
         })
-        .addAsyncThunk(fetchProductDetails.rejected, (state, action) => {
+        .addCase(fetchProductDetails.rejected, (state, action) => {
             state.loading = false
             state.error - action.error.message;
         })
@@ -155,7 +155,7 @@ const productsSlice = createSlice({
                 state.products[index] = updateProduct;
             }
         })
-        .addAsyncThunk(updateProduct.rejected, (state, action) => {
+        .addCase(updateProduct.rejected, (state, action) => {
             state.loading = false
             state.error - action.error.message;
         })
@@ -166,11 +166,11 @@ const productsSlice = createSlice({
         })
         .addCase(fetchSimilarProducts.fulfilled, (state, action) => {
             state.loading = false;
-            state.products = action.payload;
+            state.similarProducts = action.payload;
         })
-        .addAsyncThunk(fetchSimilarProducts.rejected, (state, action) => {
+        .addCase(fetchSimilarProducts.rejected, (state, action) => {
             state.loading = false
-            state.error - action.error.message;
+            state.error = action.error.message;
         })
     }
 });
