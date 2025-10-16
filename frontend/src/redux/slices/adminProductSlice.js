@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { create } from "../../../../backend/models/User";
 
 const API_URL = `${import.meta.env.VITE_API_URL}`
 const USER_TOKEN = `Bearer ${localStorage.getItem("userToken")}`
