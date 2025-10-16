@@ -27,7 +27,7 @@ const cartSchema = new mongoose.Schema({
     guestId: {
         type: String,
     },
-    product: [cartItemSchema],
+    products: [cartItemSchema],
     totalPrice: {
         type: Number,
         required: true,

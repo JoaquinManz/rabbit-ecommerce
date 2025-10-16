@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
 
         // if the cart exists, update it
         if (cart) {
-            const productIndex = cart.product.findIndex((p) => 
+            const productIndex = cart.products.findIndex((p) => 
                 p.productId.toString() === productId && 
                 p.size === size && 
                 p.color === color
@@ -39,10 +39,10 @@ router.post("/", async (req, res) => {
 
             if(productIndex > -1) {
                 //If the product exists, update the quantity
-                cart.product[productIndex].quantity += quantity;
+                cart.products[productIndex].quantity += quantity;
             } else {
                 //If the product doesnt exist, add a new product
-                cart.product.push({
+                cart.products.push({
                     productId,
                     name: product.name,
                     image: product.images[0].url,
@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
                 });
             }
             // Recalculate the total price
-            cart.totalPrice = cart.product.reduce((acc, item) => acc + item.price * quantity, 0);
+            cart.totalPrice = cart.products.reduce((acc, item) => acc + item.price * item.quantity, 0);
             await cart.save();
             return res.status(200).json(cart);
         } else {
@@ -61,7 +61,7 @@ router.post("/", async (req, res) => {
             const newCart = await Cart.create({
                 user: userId ? userId : undefined,
                 guestId: guestId ? guestId : "guest_" + new Date().getTime(),
-                product: [
+                products: [
                     {
                         productId,
                         name: product.name,
@@ -94,7 +94,7 @@ router.put("/", async (req, res) => {
 
         if(!cart) return res.status(404).json({ message: "Cart not found" })
 
-        const productIndex = cart.product.findIndex((p) => 
+        const productIndex = cart.products.findIndex((p) => 
             p.productId.toString() === productId &&
             p.size === size &&
             p.color === color
@@ -103,11 +103,11 @@ router.put("/", async (req, res) => {
         if(productIndex > -1) {
             //update quantity
             if(quantity > 0) {
-                cart.product[productIndex].quantity += quantity;
+                cart.products[productIndex].quantity = quantity;
             } else {
-                cart.product.splice(productIndex, 1); // Removes the product if the quantity is 0
+                cart.products.splice(productIndex, 1); // Removes the product if the quantity is 0
             }
-            cart.totalPrice = cart.product.reduce((acc, item) => acc + item.price * item.quantity, 0);
+            cart.totalPrice = cart.products.reduce((acc, item) => acc + item.price * item.quantity, 0);
             await cart.save()
             return res.status(200).json(cart);
         } else {
@@ -129,16 +129,16 @@ router.delete("/", async (req, res) => {
         let cart = await getCart(userId, guestId)
         if(!cart) return res.status(404).json({ message: "Cart not found :(" })
 
-        const productIndex = cart.product.findIndex((p) =>
+        const productIndex = cart.products.findIndex((p) =>
             p.productId.toString() === productId &&
             p.size === size &&
             p.color === color
         );
 
         if(productIndex > -1) {
-            cart.product.splice(productIndex, 1);
+            cart.products.splice(productIndex, 1);
 
-            cart.totalPrice = cart.product.reduce((acc, item) => acc + item.price * item.quantity, 0);
+            cart.totalPrice = cart.products.reduce((acc, item) => acc + item.price * item.quantity, 0);
             await cart.save()
             return res.status(200).json(cart);
         } else {
@@ -185,14 +185,14 @@ router.post("/merge",protect, async (req, res) => {
         const userCart = await Cart.findOne({ user: req.user._id });
 
         if(guestCart) {
-            if(guestCart.product.length === 0) {
+            if(guestCart.products.length === 0) {
                 return res.status(400).json({ message: "Guest cart is empty" });
             }
 
             if(userCart) {
                 // merge guest cart into user cart
-                guestCart.product.forEach((guestItem) => {
-                    const productIndex = userCart.product.findIndex((item) =>
+                guestCart.products.forEach((guestItem) => {
+                    const productIndex = userCart.products.findIndex((item) =>
                     item.productId.toString() === guestItem.productId.toString() && 
                     item.size === guestItem.size &&
                     item.color === guestItem.color
@@ -200,15 +200,15 @@ router.post("/merge",protect, async (req, res) => {
 
                     if(productIndex > -1) {
                         //if the items exists in the user cart, update the quantity
-                        userCart.product[productIndex].quantity += guestItem.quantity;
+                        userCart.products[productIndex].quantity += guestItem.quantity;
                     } else {
                         //otherwise, add the item to the user cart
-                        userCart.product.push(guestItem)
+                        userCart.products.push(guestItem)
                     }
 
                 });
 
-                userCart.totalPrice = userCart.product.reduce((acc, item) => acc +item.price * item.quantity,
+                userCart.totalPrice = userCart.products.reduce((acc, item) => acc +item.price * item.quantity,
                     0
                 );
                 await userCart.save();
