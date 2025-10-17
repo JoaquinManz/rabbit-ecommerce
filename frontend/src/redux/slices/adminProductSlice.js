@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = `${import.meta.env.VITE_API_URL}`
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}`
 const USER_TOKEN = `Bearer ${localStorage.getItem("userToken")}`
 
 // async thunk to fetch admin products
@@ -89,7 +89,7 @@ const adminProductSlice = createSlice({
             }
         })
         // delete product
-        .addCase(deleteProducts.fulfilled, (state, action) => {
+        .addCase(deleteProduct.fulfilled, (state, action) => {
             state.products = state.products.filter(
                 (product) => product._id !== action.payload
             )
@@ -97,4 +97,4 @@ const adminProductSlice = createSlice({
     }
 });
 
-export default adminProductSlice;
+export default adminProductSlice.reducer;
