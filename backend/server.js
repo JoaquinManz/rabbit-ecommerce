@@ -17,8 +17,19 @@ const productAdminRoutes = require('./routes/productAdminRoutes');
 const adminOrderRoutes = require('./routes/adminOrderRoutes');
 
 const app = express();
+
+// cors configuration
+
+const corsOptions = {
+    origin: [
+    'https://rabbit-ecommerce-liart.vercel.app'
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200
+}
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 dotenv.config();
 
@@ -46,5 +57,5 @@ app.use("/api/admin/products", productAdminRoutes);
 app.use("/api/admin/orders", adminOrderRoutes);
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on https://rabbit-ecommerce-liart.vercel.app`);
 })
