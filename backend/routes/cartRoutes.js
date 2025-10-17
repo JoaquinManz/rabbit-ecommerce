@@ -87,6 +87,7 @@ router.post("/", async (req, res) => {
 //@access Public
 
 router.put("/", async (req, res) => {
+    console.log('🔥 PUT /api/cart called with:', req.body);
     const { productId, quantity, size, color, guestId, userId } = req.body;
 
     try {
