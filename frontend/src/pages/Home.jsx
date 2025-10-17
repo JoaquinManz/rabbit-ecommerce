@@ -48,7 +48,7 @@ const Home = () => {
         <NewArrivals />
 
         {/* Best Seller section */}
-        <h2 className="text-3xl text-center font-bold mb-4">
+        <h2 className="text-3xl text-center font-bold mb-4 mt-4">
           Best Seller
         </h2>
         {bestSellerProduct ? (<ProductDetails productId={bestSellerProduct._id} />) : 
