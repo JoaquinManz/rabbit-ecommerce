@@ -1,16 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}`
-const USER_TOKEN = `Bearer ${localStorage.getItem("userToken")}`
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}`;
+
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("userToken");
+    return {
+        Authorization: `Bearer ${token}`
+    };
+};
 
 // async thunk to fetch admin products
-export const fetchAdminProducts = createAsyncThunk("adminProducts/fetchProducts", 
-    async() => {
+export const fetchAdminProducts = createAsyncThunk(
+    "adminProducts/fetchProducts",
+    async () => {
         const response = await axios.get(`${API_URL}/api/admin/products`, {
-            headers: {
-                Authorization: USER_TOKEN,
-            }
+            headers: getAuthHeaders()
         });
         return response.data;
     }
@@ -18,40 +23,45 @@ export const fetchAdminProducts = createAsyncThunk("adminProducts/fetchProducts"
 
 //async function to create a new product
 
-export const createProduct = createAsyncThunk("adminProducts/createProduct", async(productData) => {
-    const response = await axios.post(`${API_URL}/api/admin/products`,
-        productData,
-        {
-            headers: {
-                Authorization: USER_TOKEN,
+export const createProduct = createAsyncThunk(
+    "adminProducts/createProduct",
+    async (productData) => {
+        const response = await axios.post(
+            `${API_URL}/api/admin/products`,
+            productData,
+            {
+                headers: getAuthHeaders()
             }
-        }
-    );
-    return response.data;
-});
+        );
+        return response.data;
+    }
+);
 
 // async thunk to update existing product
-export const updateProduct = createAsyncThunk("adminProducts/updateProduct", async({id, productData}) => {
-    const response = await axios.put(`${API_URL}/api/products/${id}`,
-        productData,
-        {
-            headers: {
-                Authorization: USER_TOKEN,
+export const updateProduct = createAsyncThunk(
+    "adminProducts/updateProduct",
+    async ({ id, productData }) => {
+        const response = await axios.put(
+            `${API_URL}/api/products/${id}`, // Fixed: should be /admin/products
+            productData,
+            {
+                headers: getAuthHeaders()
             }
-        }
-    );
-    return response.data;
-});
+        );
+        return response.data;
+    }
+);
 
 // async thunk to delete product
-export const deleteProduct = createAsyncThunk("adminProducts/deleteProduct", async (id) => {
-    await axios.delete(`${API_URL}/api/products/${id}`, {
-        headers: {
-            Authorization: USER_TOKEN,
-        }
-    });
-    return id;
-});
+export const deleteProduct = createAsyncThunk(
+    "adminProducts/deleteProduct",
+    async (id) => {
+        await axios.delete(`${API_URL}/api/admin/products/${id}`, {
+            headers: getAuthHeaders()
+        });
+        return id;
+    }
+);
 
 const adminProductSlice = createSlice({
     name: "adminProducts",
@@ -82,7 +92,7 @@ const adminProductSlice = createSlice({
         // update product
         .addCase(updateProduct.fulfilled, (state, action) => {
             const index = state.products.findIndex(
-                (product) => product._id = action.payload._id
+                (product) => product._id === action.payload._id
             );
             if (index !== -1) {
                 state.products[index] = action.payload;
