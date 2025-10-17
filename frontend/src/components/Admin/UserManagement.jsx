@@ -77,6 +77,7 @@ const UserManagement = () => {
                         value={formData.name} 
                         onChange={handleChange} 
                         className='w-full p-2 border rounded'
+                        autoComplete='Off'
                         required
                     />
                 </div>
@@ -90,6 +91,7 @@ const UserManagement = () => {
                         onChange={handleChange} 
                         className='w-full p-2 border rounded'
                         required
+                        autoComplete='Off'
                     />
                 </div>
 
@@ -102,6 +104,7 @@ const UserManagement = () => {
                         onChange={handleChange} 
                         className='w-full p-2 border rounded'
                         required
+                        autoComplete='new-password'
                     />
                 </div>
 
