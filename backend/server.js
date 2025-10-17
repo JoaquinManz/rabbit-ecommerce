@@ -21,12 +21,31 @@ const app = express();
 // cors configuration
 
 const corsOptions = {
-    origin: [
-    'https://rabbit-ecommerce-liart.vercel.app'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://rabbit-ecommerce-liart.vercel.app', // Production
+      'http://localhost:3000', // Local development
+      'http://localhost:5173'  // Local Vite
+    ];
+    
+    // Allow any vercel.app subdomain for your project
+    if (origin.includes('joaquinmanzs-projects.vercel.app') || 
+        origin.includes('rabbit-ecommerce') && origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200
-}
+};
 
 app.use(express.json());
 app.use(cors(corsOptions));
